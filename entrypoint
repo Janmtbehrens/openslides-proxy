@@ -29,7 +29,7 @@ jq_write() {
 
 ### HTTPS ###
 if [ -n "$ENABLE_LOCAL_HTTPS" ]; then
-  [ -f "$HTTPS_CERT_FILE" ] && [ -f "$HTTPS_KEY_FILE" ] || {
+  { [ -f "$HTTPS_CERT_FILE" ] && [ -f "$HTTPS_KEY_FILE" ]; } || {
     echo "ERROR: no local cert-files provided. Did you run make-localhost-cert.sh?"
     exit 1
   }

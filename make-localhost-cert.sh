@@ -8,7 +8,7 @@ if [[ -f "certs/key.pem" ]] || [[ -f "certs/cert.pem" ]]; then
     exit 0
 fi
 
-if ! type 2>&1 >/dev/null openssl ; then
+if ! type >/dev/null 2>&1 openssl ; then
     echo >&2 "Error: openssl not found!"
     exit 1
 fi
