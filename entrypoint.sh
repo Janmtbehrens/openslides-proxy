@@ -265,6 +265,7 @@ echo "Enabling OIDC authentication middleware"
             InsecureSkipVerify: true
             ValidateIssuer: true
             ValidIssuer: "${IDP_URL_EXTERNAL}"
+            UseClaimsFromUserInfo: true
           UnauthorizedBehavior: Forward
           UnauthenticatedBehavior: Forward
           BypassAuthenticationRule: "PathPrefix(\`/\`)"
@@ -273,6 +274,9 @@ echo "Enabling OIDC authentication middleware"
           Headers:
             - Name: "Authorization"
               Value: "{{\`Bearer: {{ .accessToken }}\`}}"
+              IncludeWhen: "Public"
+            - Name: "X-OIDC-Session"
+              Value: "{{\`{{ .claims.sid }}\`}}"
               IncludeWhen: "Public"
           Scopes: ["openid", "profile", "email"]
           SessionCookie:
