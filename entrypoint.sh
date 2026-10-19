@@ -46,18 +46,20 @@ IDP_HOST="${IDP_HOST:-zitadel-api}"
 IDP_HOST_PORT="${IDP_HOST_PORT:-8080}"
 IDP_LOGIN_HOST="${IDP_LOGIN_HOST:-zitadel-login}"
 IDP_LOGIN_HOST_PORT="${IDP_LOGIN_HOST_PORT:-3000}"
-INSTANCE_URL="${INSTANCE_URL:-https://localhost:8000}"
 IDP_URL_EXTERNAL="${IDP_URL_EXTERNAL:-https://localhost:8800}"
 IDP_URL_INTERNAL="${IDP_URL_INTERNAL:-h2c://zitadel-api:8080}"
-
+IDP_ENABLE_ZITADEL="${IDP_ENABLE_ZITADEL:-true}"
+IDP_CLIENT_ID="${IDP_MANUAL_CLIENT_ID:-}"
 
 # =================================
 # = Build static / install config =
 # =================================
 
-# Get Zitadel Client ID
-IDP_PAT="$(cat /zitadel/bootstrap/admin.pat)"
-IDP_CLIENT_ID="$(cat /zitadel/bootstrap/client-id)"
+# Get Zitadel Client ID, if enabled
+if [ "$IDP_ENABLE_ZITADEL" == "true" ]
+then
+  IDP_CLIENT_ID="$(cat /zitadel/bootstrap/client-id)"
+fi
 
 # Generate base config from template
 envsubst < /templates/traefik.yml > "$TRAEFIK_CONFIG"
@@ -229,7 +231,7 @@ echo "Enabling OIDC authentication middleware"
   cat >> "$DYNAMIC_CONFIG" << EOF
 
   middlewares:
-    zitadel-cors:
+    idp-cors:
       headers:
         accessControlAllowMethods:
           - GET
@@ -268,7 +270,7 @@ echo "Enabling OIDC authentication middleware"
             UseClaimsFromUserInfo: true
           UnauthorizedBehavior: Forward
           UnauthenticatedBehavior: Forward
-          BypassAuthenticationRule: "PathPrefix(\`/\`)"
+          BypassAuthenticationRule: "PathPrefix(\`/\`) && PathPrefix(\`/login/privacypolicy\`) && PathPrefix(\`/login/legalnotice\`)"
           LoginUri: "/system/login"
           LogoutUri: "/system/logout"
           Headers:
